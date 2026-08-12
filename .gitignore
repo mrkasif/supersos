@@ -11,7 +11,3 @@ local.properties
 # OS
 .DS_Store
 Thumbs.db
-
-# Outputs
-*.apk
-*.aab
