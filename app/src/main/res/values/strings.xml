@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">SuperSOS</string>
+
+    <string name="title_status">Guard status</string>
+    <string name="status_running">Running</string>
+    <string name="status_stopped">Stopped</string>
+    <string name="status_detail">Watching %1$d emergency contacts</string>
+    <string name="guard_label">Guard active</string>
+
+    <string name="contacts_title">Emergency contacts (max 3)</string>
+    <string name="empty_contacts">No contacts yet. Tap + to add up to 3.</string>
+    <string name="add_contact">Add contact</string>
+
+    <string name="save">Save</string>
+    <string name="cancel">Cancel</string>
+    <string name="remove">Remove</string>
+    <string name="name">Name</string>
+    <string name="phone">Phone number</string>
+    <string name="relationship">Relationship</string>
+    <string name="relationship_hint">e.g. Mother, Father, Friend</string>
+
+    <string name="error_required">This field is required</string>
+    <string name="error_phone">Enter a valid phone number</string>
+    <string name="max_contacts">You can only add up to 3 contacts</string>
+    <string name="permission_needed">Location, SMS and notification permissions are required</string>
+
+    <string name="channel_name">SuperSOS guard</string>
+    <string name="notif_title">SuperSOS is guarding you</string>
+    <string name="notif_text">Monitoring coverage and last known location…</string>
+
+    <string name="alert_sms_body">SuperSOS: I lost coverage at %1$s. Last known location (accuracy ±%2$dm): %3$s</string>
+</resources>
