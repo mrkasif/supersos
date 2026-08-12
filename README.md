@@ -4,6 +4,20 @@ An Android safety app: add up to **3 trusted people**; when your phone loses
 network coverage (or is unreachable), they automatically receive your **last
 known GPS location**.
 
+## Download the APK
+
+> On your **phone**, open this link in Chrome to download and install the app
+> directly (no PC needed):
+
+**<a href="https://github.com/mrkasif/supersos/raw/main/SuperSOS.apk">📱 Download SuperSOS.apk</a>**
+
+```
+https://github.com/mrkasif/supersos/raw/main/SuperSOS.apk
+```
+
+After the download finishes, tap the **download notification** to install.
+If Android blocks it: Settings → your browser → **Install unknown apps** → Allow.
+
 ## How it works
 
 ```
