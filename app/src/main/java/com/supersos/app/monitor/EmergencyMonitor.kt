@@ -6,6 +6,7 @@ import android.util.Log
 import com.supersos.app.data.ContactsRepository
 import com.supersos.app.location.LocationTracker
 import com.supersos.app.notify.LocationNotifier
+import com.supersos.app.notify.HttpRemoteBackend
 import com.supersos.app.notify.PendingAlertStore
 import com.supersos.app.notify.PendingAlertStore.PendingAlert
 import com.supersos.app.notify.RemoteBackend
@@ -16,6 +17,7 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.launch
 import java.util.concurrent.atomic.AtomicLong
 
 /**
