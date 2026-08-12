@@ -76,14 +76,21 @@ super sos/
 └─ README.md
 ```
 
-## Building the APK
+## Building the APK (no Android Studio needed)
 
-Requires **Android Studio** (this repo has no wrapper JAR — open the folder in
-Android Studio and it will generate `gradlew`, or run `gradle wrapper` first).
+The APK is built **automatically in the cloud on GitHub Actions** — nothing to
+install on your machine.
 
-1. Open the project in Android Studio.
-2. Build → `app` → `Build APK(s)`.
-3. The APK appears at `app/build/outputs/apk/debug/app-debug.apk`.
+1. Push the repo to GitHub (already done for this project).
+2. Open the **Actions** tab → the `Build APK` run starts automatically.
+3. Wait for the green check, open the run, and download the **`supersos-apk`**
+   artifact.
+4. Unzip it and install `app-debug.apk` on your phone (allow "install unknown
+   apps").
+
+You can also rebuild any time by clicking **Run workflow** in the Actions tab
+(e.g. after changing the code and pushing). The workflow is defined in
+`.github/workflows/build-apk.yml`.
 
 ### First-run setup on the phone
 

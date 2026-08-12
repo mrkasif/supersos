@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SuperSOS — Interactive Demo</title>
+<style>
+  :root{
+    --brand:#D32F2F; --brand-dark:#9A0007; --bg:#0f1115; --card:#1b1f27;
+    --text:#e8eaed; --muted:#9aa0a8; --ok:#2ecc71; --warn:#f1c40f; --off:#e74c3c;
+    --line:#2a2f3a;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;
+    background:radial-gradient(1200px 600px at 50% -10%, #2a1b1d 0%, var(--bg) 60%);
+    font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;color:var(--text);padding:24px;
+  }
+  .phone{
+    width:400px;max-width:100%;border-radius:36px;border:1px solid #333;
+    background:var(--bg);box-shadow:0 30px 80px rgba(0,0,0,.6);overflow:hidden;
+  }
+  .screen{height:720px;max-height:calc(100vh - 48px);display:flex;flex-direction:column}
+  header{padding:16px 18px;background:linear-gradient(180deg,var(--brand-dark),var(--brand));display:flex;align-items:center;justify-content:space-between}
+  .logo{display:flex;align-items:center;gap:10px;font-weight:800;font-size:20px;letter-spacing:.5px}
+  .shield{width:26px;height:26px;border-radius:7px;background:var(--text);position:relative}
+  .shield::before,.shield::after{content:"";position:absolute;background:var(--brand)}
+  .shield::before{left:12px;top:6px;width:3px;height:14px}
+  .shield::after{left:8px;top:11px;width:11px;height:3px}
+  .pill{font-size:11px;font-weight:700;padding:5px 10px;border-radius:999px;background:rgba(0,0,0,.35)}
+  .pill.online{color:var(--ok)} .pill.weak{color:var(--warn)} .pill.offline{color:var(--off)}
+  main{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:14px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px}
+  .row{display:flex;align-items:center;justify-content:space-between;gap:10px}
+  .muted{color:var(--muted);font-size:12px}
+  .big{font-size:22px;font-weight:800}
+  .switch{position:relative;width:52px;height:30px;flex:none}
+  .switch input{opacity:0;width:0;height:0}
+  .track{position:absolute;inset:0;border-radius:999px;background:#3a3f4a;transition:.2s;cursor:pointer}
+  .knob{position:absolute;top:3px;left:3px;width:24px;height:24px;border-radius:50%;background:#fff;transition:.2s}
+  .switch input:checked + .track{background:var(--brand)}
+  .switch input:checked + .track .knob{transform:translateX(22px)}
+  .contacts{display:flex;flex-direction:column;gap:8px}
+  .contact{display:flex;align-items:center;gap:10px;padding:10px;background:#151922;border:1px solid var(--line);border-radius:10px}
+  .avatar{width:38px;height:38px;border-radius:50%;background:var(--brand);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;flex:none}
+  .c-name{font-weight:700;font-size:14px}
+  .c-sub{font-size:12px;color:var(--muted)}
+  .del{margin-left:auto;background:none;border:none;color:var(--off);cursor:pointer;font-size:16px}
+  form{display:grid;grid-template-columns:1fr;gap:8px}
+  input{background:#151922;border:1px solid var(--line);color:var(--text);border-radius:8px;padding:10px;font-size:14px;outline:none}
+  input:focus{border-color:var(--brand)}
+  .btn{border:none;border-radius:9px;padding:10px 12px;font-weight:700;font-size:13px;cursor:pointer}
+  .btn.add{background:var(--brand);color:#fff;width:100%}
+  .btn:disabled{opacity:.45;cursor:not-allowed}
+  .controls{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+  .btn.off{background:#3a1416;color:#ff8f8f}
+  .btn.weak{background:#3a2d12;color:#ffd97a}
+  .btn.on{background:#143a23;color:#8fffb8}
+  .chip{font-size:11px;color:var(--muted);text-align:center;margin-top:8px}
+  .log{font-family:ui-monospace,Consolas,monospace;font-size:11px;line-height:1.7;max-height:190px;overflow-y:auto;background:#0d1015;border:1px solid var(--line);border-radius:10px;padding:10px}
+  .log .t{color:#6a7178}
+  .log .ev{color:#8ab4ff}
+  .log .sms{color:var(--ok)}
+  .log .fail{color:var(--off)}
+  .log .emg{color:#ff7aa2;font-weight:700}
+  footer{padding:10px 16px;border-top:1px solid var(--line);font-size:11px;color:var(--muted);text-align:center}
+</style>
+</head>
+<body>
+<div class="phone"><div class="screen">
+  <header>
+    <div class="logo"><span class="shield"></span>SuperSOS</div>
+    <span class="pill" id="coveragePill">ONLINE</span>
+  </header>
+  <main>
+    <div class="card">
+      <div class="row">
+        <div>
+          <div class="muted">Guard status</div>
+          <div class="big" id="guardState">Stopped</div>
+          <div class="muted" id="watchText">0 contacts watched</div>
+        </div>
+        <label class="switch">
+          <input type="checkbox" id="guardSwitch">
+          <span class="track"><span class="knob"></span></span>
+        </label>
+      </div>
+      <div class="row" style="margin-top:10px">
+        <div>
+          <div class="muted">Last GPS fix (works with no coverage)</div>
+          <div class="big" id="locText">—</div>
+        </div>
+        <div class="muted" id="accText"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="muted" style="margin-bottom:8px">Simulate the radio network</div>
+      <div class="controls">
+        <button class="btn off" id="btnOff">Coverage lost</button>
+        <button class="btn weak" id="btnWeak">Weak signal</button>
+        <button class="btn on" id="btnOn">Restore coverage</button>
+      </div>
+      <div class="chip">SMS needs only cell signal — weak signal can still deliver, zero coverage cannot</div>
+    </div>
+
+    <div class="card">
+      <div class="row"><span class="muted" style="font-weight:700">Emergency contacts (max 3)</span><span class="muted" id="countText">0/3</span></div>
+      <div class="contacts" id="contacts"></div>
+      <form id="addForm" style="margin-top:10px">
+        <input id="inName" placeholder="Name" autocomplete="off">
+        <input id="inPhone" placeholder="Phone number" autocomplete="off">
+        <input id="inRel" placeholder="Relationship (e.g. Mother)" autocomplete="off">
+        <button class="btn add" id="addBtn" type="submit">Add contact</button>
+      </form>
+    </div>
+
+    <div class="card">
+      <div class="muted" style="margin-bottom:8px;font-weight:700">Event log</div>
+      <div class="log" id="log"></div>
+    </div>
+  </main>
+  <footer>Interactive demo — mirrors EmergencyMonitor.kt state machine (timings compressed)</footer>
+</div></div>
+
+<script>
+(function(){
+  const $ = id => document.getElementById(id);
+  const logEl = $('log');
+
+  // ---- state (mirrors EmergencyMonitor) ----
+  const contacts = [];                 // max 3
+  let guardOn = false;
+  let coverage = 'online';             // online | weak | offline
+  let lat = 33.7243, lng = 73.0433;    // simulated GPS (keeps moving offline)
+  let acc = 4;
+  let unreachableSince = 0;            // 0 = reachable
+  let lastSmsAt = 0;
+  let pending = null;                  // queued alert {lat,lng,acc,ts,phones}
+  const EMERGENCY_AFTER = 10*1000;     // demo: emergency after 10s unreachable
+  const SMS_RETRY = 8*1000;            // demo: retry SMS every 8s
+
+  function ts(){ const d=new Date(); return d.toTimeString().slice(0,8); }
+  function log(msg, cls){
+    const line = document.createElement('div');
+    line.innerHTML = `<span class="t">[${ts()}]</span> ${msg}`;
+    line.className = cls || '';
+    logEl.prepend(line);
+    while(logEl.children.length>40) logEl.removeChild(logEl.lastChild);
+  }
+  function maps(lat2,lng2){ return `maps.google.com/?q=${lat2.toFixed(4)},${lng2.toFixed(4)}`; }
+
+  // ---- coverage / state transitions ----
+  function setCoverage(c){
+    coverage = c;
+    const pill = $('coveragePill');
+    pill.textContent = {online:'ONLINE', weak:'LOW SIGNAL', offline:'OFFLINE'}[c];
+    pill.className = 'pill '+c;
+    if(c==='online'){
+      if(unreachableSince){
+        log(`coverage restored after ${(Date.now()-unreachableSince)/1000|0}s — flushing alert`, 'ev');
+        flushPending();
+        unreachableSince = 0;
+      }
+    } else {
+      if(unreachableSince===0){
+        unreachableSince = Date.now();
+        log(`coverage lost (${c}) — entering unreachable mode`, 'ev');
+        trySms();  // immediate first shot while any signal remains
+      }
+    }
+  }
+
+  // ---- GPS tick ----
+  setInterval(()=>{
+    if(!guardOn) return;
+    // GPS keeps fixing offline
+    lat += (Math.random()-0.5)*0.0006;
+    lng += (Math.random()-0.5)*0.0006;
+    acc = Math.max(3, acc + Math.round((Math.random()-0.5)*4));
+    $('locText').textContent = lat.toFixed(4)+', '+lng.toFixed(4);
+    $('accText').textContent = '±'+acc+'m';
+
+    if(coverage!=='online'){
+      // refresh queued fix with the freshest position
+      pending = {lat,lng,acc,ts:Date.now(),phones:contacts.map(c=>c.phone)};
+      log(`GPS fix refreshed (offline) → queued last known location`, 'ev');
+      const offMs = Date.now()-unreachableSince;
+      if(offMs >= EMERGENCY_AFTER){
+        const due = Date.now()-lastSmsAt >= SMS_RETRY;
+        if(due){ lastSmsAt=Date.now(); trySms(); }
+      }
+    }
+  }, 2000);
+
+  // ---- SMS ----
+  function trySms(){
+    if(!contacts.length){ log('no contacts — nothing to send', 'fail'); return; }
+    const a = pending || {lat,lng,acc,ts:Date.now(),phones:contacts.map(c=>c.phone)};
+    const ok = coverage!=='offline'; // weak signal can still route SMS
+    contacts.forEach(c=>{
+      log(`SMS → ${c.name} <span class="t">${ok?'SENT':'FAILED (no service)'}</span> | ${maps(a.lat,a.lng)}`, ok?'sms':'fail');
+    });
+    if(ok){ pending=null; }
+  }
+
+  // ---- flush on reconnect ----
+  function flushPending(){
+    if(!pending){ log('nothing queued — all clear', 'ev'); return; }
+    contacts.forEach(c=>{
+      log(`FLUSH SMS → ${c.name} <span class="emg">${maps(pending.lat,pending.lng)}</span>`, 'sms');
+    });
+    log(`EMERGENCY ALERT DELIVERED to ${contacts.length} contact(s)`, 'emg');
+    pending=null;
+  }
+
+  // ---- UI wiring ----
+  function renderContacts(){
+    const box = $('contacts');
+    box.innerHTML='';
+    contacts.forEach((c,i)=>{
+      const el=document.createElement('div'); el.className='contact';
+      el.innerHTML=`<span class="avatar">${c.name[0].toUpperCase()}</span>
+        <div><div class="c-name">${c.name}</div><div class="c-sub">${c.rel} · ${c.phone}</div></div>
+        <button class="del" title="Remove">✕</button>`;
+      el.querySelector('.del').onclick=()=>{ contacts.splice(i,1); renderContacts(); log(`removed ${c.name}`, 'ev'); };
+      box.appendChild(el);
+    });
+    $('countText').textContent = contacts.length+'/3';
+    $('addBtn').disabled = contacts.length>=3;
+    $('watchText').textContent = guardOn ? (contacts.length? contacts.length+' contact(s) watched':'0 contacts watched') : 'guard off';
+  }
+  renderContacts();
+
+  $('addForm').addEventListener('submit', e=>{
+    e.preventDefault();
+    const name=$('inName').value.trim(), phone=$('inPhone').value.trim(), rel=$('inRel').value.trim();
+    if(!name||!phone){ log('name and phone required', 'fail'); return; }
+    if(contacts.length>=3){ log('max 3 contacts reached', 'fail'); return; }
+    contacts.push({name,phone,rel:rel||'Close contact'});
+    $('inName').value=$('inPhone').value=$('inRel').value='';
+    renderContacts(); log(`added ${name} as an emergency contact`, 'ev');
+  });
+
+  $('guardSwitch').addEventListener('change', e=>{
+    guardOn = e.target.checked;
+    $('guardState').textContent = guardOn ? 'Running' : 'Stopped';
+    $('guardState').style.color = guardOn ? 'var(--ok)' : 'var(--text)';
+    log(guardOn ? 'guard ON — watching for loss of coverage' : 'guard OFF', 'ev');
+    if(guardOn) $('locText').textContent = lat.toFixed(4)+', '+lng.toFixed(4);
+    renderContacts();
+  });
+
+  $('btnOff').onclick = ()=>{ setCoverage('offline'); };
+  $('btnWeak').onclick = ()=>{ setCoverage('weak'); };
+  $('btnOn').onclick  = ()=>{ setCoverage('online'); };
+
+  // seed the log
+  log('demo ready — add contacts, toggle guard, then lose coverage', 'ev');
+})();
+</script>
+</body>
+</html>
